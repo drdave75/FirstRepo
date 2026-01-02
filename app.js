@@ -137,12 +137,15 @@ class OhmeDashboard {
         const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
         const countries = this.data.map(row => row.Country);
 
-        // Calculate totals for each year
-        const yearlyTotals = years.map(year => {
-            return this.data.reduce((sum, row) => {
-                return sum + (parseInt(row[year]) || 0);
-            }, 0);
-        });
+        // Use actual global totals (includes all countries worldwide, not just those shown in table)
+        const globalTotals = {
+            '2022': 413,
+            '2023': 662,
+            '2024': 938,
+            '2025': 1300
+        };
+
+        const yearlyTotals = years.map(year => globalTotals[year] || 0);
 
         // Create gradient
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
@@ -235,12 +238,19 @@ class OhmeDashboard {
 
         const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
 
-        // Calculate totals
+        // Use actual global totals (includes all countries worldwide, not just those shown in table)
+        const globalTotals = {
+            '2022': 413,
+            '2023': 662,
+            '2024': 938,
+            '2025': 1300
+        };
+
         const currentYear = years[0];
         const previousYear = years[1];
 
-        const currentTotal = this.data.reduce((sum, row) => sum + (parseInt(row[currentYear]) || 0), 0);
-        const previousTotal = this.data.reduce((sum, row) => sum + (parseInt(row[previousYear]) || 0), 0);
+        const currentTotal = globalTotals[currentYear];
+        const previousTotal = globalTotals[previousYear];
         const growth = currentTotal - previousTotal;
         const growthPercent = ((growth / previousTotal) * 100).toFixed(1);
 
