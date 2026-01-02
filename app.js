@@ -56,16 +56,14 @@ class OhmeDashboard {
 
     useSampleData() {
         this.data = [
-            { Country: 'UK', '2025': '145', '2024': '132', '2023': '118', '2022': '95' },
-            { Country: 'Europe', '2025': '523', '2024': '487', '2023': '421', '2022': '368' },
-            { Country: 'Ireland', '2025': '34', '2024': '31', '2023': '28', '2022': '22' },
-            { Country: 'Poland', '2025': '67', '2024': '58', '2023': '49', '2022': '41' },
-            { Country: 'Belgium', '2025': '42', '2024': '38', '2023': '33', '2022': '28' },
-            { Country: 'Germany', '2025': '98', '2024': '89', '2023': '76', '2022': '65' },
-            { Country: 'Italy', '2025': '87', '2024': '79', '2023': '68', '2022': '58' },
-            { Country: 'Netherlands', '2025': '56', '2024': '51', '2023': '44', '2022': '37' },
-            { Country: 'Portugal', '2025': '48', '2024': '43', '2023': '37', '2022': '31' },
-            { Country: 'Spain', '2025': '91', '2024': '86', '2023': '78', '2022': '68' }
+            { Country: 'UK', '2025': '162000', '2024': '143209' },
+            { Country: 'France', '2025': '4180', '2024': '978' },
+            { Country: 'Germany', '2025': '657', '2024': '72' },
+            { Country: 'Ireland', '2025': '6200', '2024': '4300' },
+            { Country: 'Belgium', '2025': '499', '2024': '26' },
+            { Country: 'Spain', '2025': '664', '2024': '267' },
+            { Country: 'Italy', '2025': '479', '2024': '30' },
+            { Country: 'Portugal', '2025': '741', '2024': '118' }
         ];
     }
 
@@ -139,10 +137,8 @@ class OhmeDashboard {
 
         // Use actual global totals (includes all countries worldwide, not just those shown in table)
         const globalTotals = {
-            '2022': 413,
-            '2023': 662,
-            '2024': 938,
-            '2025': 1300
+            '2024': 149000,
+            '2025': 175420
         };
 
         const yearlyTotals = years.map(year => globalTotals[year] || 0);
@@ -240,10 +236,8 @@ class OhmeDashboard {
 
         // Use actual global totals (includes all countries worldwide, not just those shown in table)
         const globalTotals = {
-            '2022': 413,
-            '2023': 662,
-            '2024': 938,
-            '2025': 1300
+            '2024': 149000,
+            '2025': 175420
         };
 
         const currentYear = years[0];
