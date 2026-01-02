@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ohme Historical Sites Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Ohme Historical Sites</h1>
+            <p class="subtitle">Data Management Dashboard</p>
+        </header>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="file-controls">
+                <label for="csvFileInput" class="btn btn-secondary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Upload CSV
+                </label>
+                <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+
+                <button id="downloadBtn" class="btn btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-15"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download CSV
+                </button>
+
+                <button id="saveBtn" class="btn btn-accent">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content: Two Sections -->
+        <div class="main-content">
+            <!-- Left Section: Sites by Country Table -->
+            <section class="section left-section">
+                <div class="section-header">
+                    <h2>Sites by Country</h2>
+                    <p class="section-description">Historical site counts across regions</p>
+                </div>
+                <div class="table-container">
+                    <table id="sitesTable" class="data-table">
+                        <thead>
+                            <tr id="tableHeader">
+                                <!-- Dynamically generated -->
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Dynamically generated -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Right Section: Yearly Trends Chart -->
+            <section class="section right-section">
+                <div class="section-header">
+                    <h2>Historical Trends</h2>
+                    <p class="section-description">Year-over-year growth analysis</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+                <div class="stats-summary" id="statsSummary">
+                    <!-- Dynamically generated stats -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 Ohme. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
