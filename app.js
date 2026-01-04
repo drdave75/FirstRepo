@@ -88,15 +88,27 @@ class OhmeDashboard {
 
         if (this.data.length === 0) return;
 
+        // Separate Country column and year columns
+        const allHeaders = Object.keys(this.data[0]);
+        const yearHeaders = allHeaders.filter(h => h !== 'Country').sort((a, b) => b - a); // Sort years descending
+        const headers = ['Country', ...yearHeaders]; // Country first, then years
+
+        // Sort data by most recent year (first year in yearHeaders) - largest to smallest
+        const sortedData = [...this.data].sort((a, b) => {
+            const aVal = parseInt(a[yearHeaders[0]]) || 0;
+            const bVal = parseInt(b[yearHeaders[0]]) || 0;
+            return bVal - aVal; // Descending order
+        });
+
         // Render headers
-        const headers = Object.keys(this.data[0]);
         thead.innerHTML = headers.map(header => `<th>${header}</th>`).join('');
 
-        // Render body
-        tbody.innerHTML = this.data.map((row, rowIndex) => {
+        // Render body with formatted numbers
+        tbody.innerHTML = sortedData.map((row, rowIndex) => {
             return `<tr>${headers.map((header, colIndex) => {
                 const isEditable = colIndex > 0 ? 'contenteditable="true"' : '';
-                return `<td ${isEditable} data-row="${rowIndex}" data-col="${header}">${row[header]}</td>`;
+                const value = header === 'Country' ? row[header] : this.formatNumber(row[header]);
+                return `<td ${isEditable} data-row="${rowIndex}" data-col="${header}">${value}</td>`;
             }).join('')}</tr>`;
         }).join('');
 
@@ -106,17 +118,30 @@ class OhmeDashboard {
                 this.handleCellEdit(e);
             });
         });
+
+        // Update the actual data array to match sorted order
+        this.data = sortedData;
+    }
+
+    formatNumber(value) {
+        // Remove any existing formatting and parse as integer
+        const num = parseInt(String(value).replace(/,/g, ''));
+        if (isNaN(num)) return value;
+        return num.toLocaleString(); // Format with commas
     }
 
     handleCellEdit(e) {
         const cell = e.target;
         const rowIndex = parseInt(cell.dataset.row);
         const colName = cell.dataset.col;
-        const newValue = cell.textContent.trim();
+        const newValue = cell.textContent.trim().replace(/,/g, ''); // Remove commas before storing
 
         // Update data
         this.data[rowIndex][colName] = newValue;
         this.hasUnsavedChanges = true;
+
+        // Re-render table to maintain formatting and sorting
+        this.renderTable();
 
         // Update chart
         this.renderChart();
