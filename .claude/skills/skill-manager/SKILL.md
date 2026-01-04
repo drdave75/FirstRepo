@@ -7,6 +7,23 @@ description: Meta-skill for managing skill lifecycle in self-aware repository. H
 
 Meta-skill for managing skill lifecycle in self-aware repository. Self-modifying with safeguards.
 
+**📖 Full Reference**: For complex decisions, consult [SKILL-FULL.md](./SKILL-FULL.md)
+
+## When to Use Each Version
+
+**This compressed version (daily use):**
+- Regular skill creation/update decisions
+- Quick reference during conversations
+- Pattern detection triggers
+- Routine conflict checks
+
+**Full version (deep work):**
+- Updating skill-manager itself (higher stakes)
+- Complex conflict resolution
+- Ecosystem health reviews
+- Major architectural decisions about skills
+- When compressed version doesn't cover edge case
+
 ## Update Existing Skills
 
 **When**: Pattern refinement, scope clarification, efficiency improvements, error correction, context compression (3+ similar updates suggest need)
@@ -72,7 +89,8 @@ Track: application frequency, user corrections, outcome quality, efficiency gain
 .claude/
   skills/
     skill-manager/
-      SKILL.md           # This skill
+      SKILL.md           # This compressed version
+      SKILL-FULL.md      # Complete reference
     ohme-data-updater/
       SKILL.md           # Existing skills
     [other-skills]/
@@ -84,5 +102,7 @@ Track: application frequency, user corrections, outcome quality, efficiency gain
 
 **Relationship**: CLAUDE.md = constitution (behavior), Skills = case law (patterns)
 
+**See Full Version**: [SKILL-FULL.md](./SKILL-FULL.md) for detailed guidance on all aspects of skill management.
+
 ## Evolution History
-- 2025-01-04: Initial creation. Self-modifying meta-skill with safeguards for emergence-based skill ecosystem.
+- 2025-01-04: Initial creation. Self-modifying meta-skill with safeguards for emergence-based skill ecosystem. Created both compressed (SKILL.md) and full (SKILL-FULL.md) versions for context efficiency.
