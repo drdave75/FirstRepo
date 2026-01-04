@@ -6,6 +6,7 @@ class OhmeDashboard {
         this.data = [];
         this.chart = null;
         this.hasUnsavedChanges = false;
+        this.updateDebounceTimer = null;
         this.init();
     }
 
@@ -103,24 +104,41 @@ class OhmeDashboard {
         // Add event listeners for editable cells
         tbody.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
             cell.addEventListener('input', (e) => {
-                this.handleCellEdit(e);
+                this.handleCellEdit(e, true); // true = debounced
+            });
+            cell.addEventListener('blur', (e) => {
+                this.handleCellEdit(e, false); // false = immediate
             });
         });
     }
 
-    handleCellEdit(e) {
+    handleCellEdit(e, debounce = true) {
         const cell = e.target;
         const rowIndex = parseInt(cell.dataset.row);
         const colName = cell.dataset.col;
         const newValue = cell.textContent.trim();
 
-        // Update data
+        // Update data immediately
         this.data[rowIndex][colName] = newValue;
         this.hasUnsavedChanges = true;
 
-        // Update chart
-        this.renderChart();
-        this.updateStats();
+        // Clear existing timer
+        if (this.updateDebounceTimer) {
+            clearTimeout(this.updateDebounceTimer);
+        }
+
+        // Update chart and stats (debounced or immediate)
+        if (debounce) {
+            // Debounce: wait 300ms after last keystroke
+            this.updateDebounceTimer = setTimeout(() => {
+                this.updateChartData();
+                this.updateStats();
+            }, 300);
+        } else {
+            // Immediate update (on blur)
+            this.updateChartData();
+            this.updateStats();
+        }
     }
 
     renderChart() {
@@ -225,6 +243,30 @@ class OhmeDashboard {
                 }
             }
         });
+    }
+
+    updateChartData() {
+        // If chart doesn't exist yet, create it
+        if (!this.chart) {
+            this.renderChart();
+            return;
+        }
+
+        // Prepare data for chart
+        const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
+
+        // Use actual global totals (includes all countries worldwide, not just those shown in table)
+        const globalTotals = {
+            '2024': 149000,
+            '2025': 175420
+        };
+
+        const yearlyTotals = years.map(year => globalTotals[year] || 0);
+
+        // Update existing chart data (much faster than destroy/recreate)
+        this.chart.data.labels = years;
+        this.chart.data.datasets[0].data = yearlyTotals;
+        this.chart.update('none'); // 'none' mode = no animation for faster updates
     }
 
     updateStats() {
