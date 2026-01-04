@@ -1,6 +1,7 @@
 ---
 name: skill-manager
 description: Meta-skill for managing skill lifecycle in self-aware repository. Handles skill creation, updates, deprecation, and conflict detection. Self-modifying with safeguards.
+type: meta
 last_verified: 2025-01-04
 verified_against: current
 owner: repository-owner
@@ -19,6 +20,12 @@ Manages skill lifecycle. Self-modifying with safeguards.
 - **Prevented measurable harm**: Bug, rollback, production incident, or compliance issue
 - **3+ occurrences of confusion**: Same question/mistake repeated
 - **High-cost operation**: Task is expensive/risky and standardization reduces risk
+
+**Additional considerations**:
+- **Operational skill**: Does this help anyone (technical or not) execute a workflow correctly?
+- **Technical/Domain skill**: Does this capture architectural principle or design pattern that technical users reference repeatedly?
+
+Both types are valuable. Operational skills emerge first (lower barrier, immediate value). Technical skills emerge later (require architectural maturity, repeated patterns).
 
 **Kill rule**: If skill hasn't prevented harm OR resolved repeated confusion, deprecate it. Skills must earn their existence.
 
@@ -76,6 +83,7 @@ Manages skill lifecycle. Self-modifying with safeguards.
 ---
 name: skill-name
 description: One-line description of when to use this skill
+type: operational|technical|foundation|meta
 last_verified: YYYY-MM-DD
 verified_against: commit-hash-or-"current"
 owner: name
@@ -115,6 +123,12 @@ Bullet list of triggers
 - file2.ext - what it does
 ```
 
+**Skill type guidance**:
+- `operational`: Workflow-focused, any team member can use
+- `technical`: Architecture-focused, requires technical expertise
+- `foundation`: Broadly applicable across all work (investigation, parallelization, etc.)
+- `meta`: Skill system governance (skill-manager, repo conventions)
+
 ## Authority & Trust
 
 **Authority hierarchy** (when conflicts arise):
@@ -128,6 +142,7 @@ Bullet list of triggers
 ---
 name: skill-name
 description: One-line description
+type: operational|technical|foundation|meta
 last_verified: YYYY-MM-DD
 verified_against: commit-hash-or-"current"
 owner: name
@@ -186,7 +201,129 @@ If two skills contradict: Alert user → Propose resolution (merge/clarify/depre
 **When you detect stale skill**:
 Alert: "Skill [name] references [file] which has changed since last verification. Skill may be outdated. Review needed?"
 
+## Skill Hierarchy & Organization
+
+**Skill categories** (organize as they emerge, don't force structure prematurely):
+
+1. **Foundation Skills** (apply broadly across all work)
+   - Investigation principles (investigate-before-answering)
+   - Execution optimization (parallel-execution)
+   - Interaction rules (do-not-act-before-instructions)
+   - Examples: `/skills/foundation/`
+
+2. **Domain Skills** (specific to architecture/technology areas)
+   - Architectural patterns (event-sourcing, microservices)
+   - Design principles (API design, service boundaries)
+   - Technical standards (testing, deployment)
+   - Examples: `/skills/domain/`
+
+3. **Operational Skills** (end-to-end workflows and processes)
+   - Dashboard maintenance (ohme-data-updater)
+   - Data management processes
+   - Deployment procedures
+   - Examples: `/skills/operational/`
+
+4. **Meta Skills** (skill system governance)
+   - Skill management (skill-manager)
+   - Repository conventions
+   - Examples: `/skills/meta/`
+
+**Organization principles**:
+- Start flat: All skills in `/skills/` initially
+- Introduce hierarchy only when:
+  - 5+ skills exist
+  - Clear categories emerge naturally
+  - Organization reduces confusion rather than adds it
+- Skills can reference other skills: `See also: [skill-name.md]`
+- Skills can declare prerequisites: `Prerequisite: [skill-name.md]`
+
+**Current structure** (as of last update):
+```
+/skills/
+  skill-manager/          # Meta skill
+  ohme-data-updater/      # Operational skill
+```
+
+**Future structure** (when hierarchy emerges):
+```
+/skills/
+  foundation/
+    investigate-before-answering.md
+    parallel-execution.md
+    do-not-act-before-instructions.md
+  domain/
+    [architectural patterns as they crystallize]
+  operational/
+    ohme-data-updater/
+    [other workflow skills]
+  meta/
+    skill-manager/
+```
+
+**When to introduce hierarchy**:
+When flat structure causes confusion (skills hard to find) or when categories naturally separate (clear distinction between technical/operational/meta concerns).
+
+Don't reorganize until the pain of flat structure justifies the cost of hierarchy.
+
+### Technical vs Operational Skills
+
+**Two parallel testing tracks** (both valuable, different purposes):
+
+**Operational Skills:**
+- Target: Any team member (technical or non-technical)
+- Focus: "How not to break it" - procedural truth
+- Format: Checklists, file locations, known pitfalls
+- Examples: Dashboard updates, data management, deployment procedures
+- Test with: Non-technical users performing operational tasks
+
+**Technical/Domain Skills:**
+- Target: Engineers, architects, technical decision-makers
+- Focus: "How to design it well" - architectural principles
+- Format: Patterns, design principles, trade-off analysis
+- Examples: Event sourcing patterns, service boundaries, API design
+- Test with: Technical users making architectural decisions
+
+**Both are needed**:
+- Operational skills enable anyone to maintain systems
+- Technical skills enable engineers to evolve systems correctly
+
+**Current status**: We have operational skills. Technical/domain skills will emerge when:
+- Engineers make repetitive architectural decisions
+- Design patterns crystallize through usage
+- Architectural mistakes create measurable harm
+- Junior engineers repeatedly rediscover known patterns
+
+**Don't prematurely create technical skills**. Let them emerge from actual technical work pressure.
+
 ## Evolution History
 - 2025-01-04: Initial creation. Self-modifying meta-skill with safeguards.
 - 2025-01-04: Compressed to pure operational format based on usage feedback. Philosophy moved to SKILL-FULL.md.
 - 2025-01-04: Added authority hierarchy, staleness detection, kill rule, and auto-update prohibition based on critical feedback about scaling failure modes.
+- 2025-01-04: Added skill hierarchy framework and technical vs operational distinction. Preparing for dual testing tracks but not forcing structure prematurely.
+
+## Technical Testing Track (Pending)
+
+**Status**: Operational skills proven valuable (ohme-data-updater). Technical/domain skills not yet needed.
+
+**Next experiment**: Have senior engineer use Claude Code for architectural work:
+- Add new event type to Axiom
+- Create new LEGO microservice
+- Refactor complex component
+
+**Observe**:
+- What architectural questions arise?
+- What patterns get referenced repeatedly?
+- What mistakes could a skill prevent?
+- Is skill structure different for technical vs operational?
+
+**Hypothesis**: Technical skills will need:
+- Pattern libraries (not just checklists)
+- Trade-off analysis frameworks
+- Design principle references
+- Architectural decision records
+
+But don't build this until pain emerges from actual technical work.
+
+**Parallel tracks**:
+- ✅ Operational track: Dashboard maintenance skills working well
+- ⏳ Technical track: Awaiting real architectural work to test
