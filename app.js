@@ -211,7 +211,7 @@ class OhmeDashboard {
             this.chart.destroy();
         }
 
-        // Prepare data for chart - sort years descending
+        // Prepare data for chart - sort years descending for calculations
         const years = Object.keys(this.data[0])
             .filter(key => key !== 'Country')
             .sort((a, b) => b - a); // 2025, 2024, 2023...
@@ -251,6 +251,10 @@ class OhmeDashboard {
             }
         }
 
+        // Reverse arrays for chart display (oldest to newest, left to right)
+        const chartYears = [...years].reverse();
+        const chartData = [...yearlyTotals].reverse();
+
         // Create gradient
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
         gradient.addColorStop(0, 'rgba(0, 217, 163, 0.8)');
@@ -259,10 +263,10 @@ class OhmeDashboard {
         this.chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: years,
+                labels: chartYears,
                 datasets: [{
                     label: chartLabel,
-                    data: yearlyTotals,
+                    data: chartData,
                     backgroundColor: gradient,
                     borderColor: '#00D9A3',
                     borderWidth: 3,
