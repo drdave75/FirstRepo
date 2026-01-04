@@ -23,7 +23,11 @@ This skill ensures that updates to the Ohme Historical Sites Dashboard are done 
 - **Country Selector:** Dropdown in top right corner allows viewing trends for:
   - Global totals (default)
   - Individual country trends
-- **Dynamic Data:** Chart updates based on selected country
+- **Dynamic Data:** Chart and statistics update based on selected country
+- **Statistics Cards:** Three dynamic cards below chart showing:
+  - **2025 Total** (or most recent year): Current year's value for selected country/global
+  - **Absolute Change**: Year-over-year numeric change (with +/- indicator)
+  - **% Change**: Year-over-year percentage change (with +/- indicator)
 
 ## When to Use
 
@@ -130,6 +134,8 @@ After making updates:
 - [ ] Verify Global Total row displays correctly in table
 - [ ] Verify EU Total (excl. UK) row displays correctly in table
 - [ ] Test country selector dropdown switches chart data correctly
+- [ ] Verify statistics cards update when country changes
+- [ ] Check statistics show correct values: Total, Absolute Change, % Change
 - [ ] Verify table sorting works (by most recent year, descending)
 - [ ] Verify number formatting with commas (e.g., 162,000)
 - [ ] README updated if needed

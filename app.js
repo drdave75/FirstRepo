@@ -326,27 +326,36 @@ class OhmeDashboard {
         if (this.data.length === 0) return;
 
         const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
-
-        // Use actual global totals (includes all countries worldwide, not just those shown in table)
-        const globalTotals = {
-            '2024': 149000,
-            '2025': 175420
-        };
-
         const currentYear = years[0];
         const previousYear = years[1];
 
-        const currentTotal = globalTotals[currentYear];
-        const previousTotal = globalTotals[previousYear];
-        const growth = currentTotal - previousTotal;
-        const growthPercent = ((growth / previousTotal) * 100).toFixed(1);
+        let currentTotal, previousTotal, dataLabel;
 
-        // Top country
-        const topCountry = this.data.reduce((max, row) => {
-            const current = parseInt(row[currentYear]) || 0;
-            const maxValue = parseInt(max[currentYear]) || 0;
-            return current > maxValue ? row : max;
-        });
+        if (this.selectedCountry === 'Global') {
+            // Use actual global totals (includes all countries worldwide, not just those shown in table)
+            const globalTotals = {
+                '2024': 149000,
+                '2025': 175420
+            };
+            currentTotal = globalTotals[currentYear];
+            previousTotal = globalTotals[previousYear];
+            dataLabel = 'Global';
+        } else {
+            // Use country-specific data
+            const countryData = this.data.find(row => row.Country === this.selectedCountry);
+            if (countryData) {
+                currentTotal = parseInt(countryData[currentYear]) || 0;
+                previousTotal = parseInt(countryData[previousYear]) || 0;
+                dataLabel = this.selectedCountry;
+            } else {
+                currentTotal = 0;
+                previousTotal = 0;
+                dataLabel = 'No Data';
+            }
+        }
+
+        const growth = currentTotal - previousTotal;
+        const growthPercent = previousTotal > 0 ? ((growth / previousTotal) * 100).toFixed(1) : '0.0';
 
         statsSummary.innerHTML = `
             <div class="stat-card">
@@ -354,16 +363,12 @@ class OhmeDashboard {
                 <p>${currentTotal.toLocaleString()}</p>
             </div>
             <div class="stat-card">
-                <h3>YoY Growth</h3>
+                <h3>Absolute Change</h3>
                 <p>${growth > 0 ? '+' : ''}${growth.toLocaleString()}</p>
             </div>
             <div class="stat-card">
-                <h3>Growth Rate</h3>
+                <h3>% Change</h3>
                 <p>${growthPercent > 0 ? '+' : ''}${growthPercent}%</p>
-            </div>
-            <div class="stat-card">
-                <h3>Top Region</h3>
-                <p style="font-size: 1.2rem;">${topCountry.Country}</p>
             </div>
         `;
     }
