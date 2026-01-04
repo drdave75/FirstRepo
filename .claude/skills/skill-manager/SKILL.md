@@ -5,104 +5,100 @@ description: Meta-skill for managing skill lifecycle in self-aware repository. H
 
 # Skill Manager
 
-Meta-skill for managing skill lifecycle in self-aware repository. Self-modifying with safeguards.
+Manages skill lifecycle. Self-modifying with safeguards.
 
 **📖 Full Reference**: For complex decisions, consult [SKILL-FULL.md](./SKILL-FULL.md)
 
-## When to Use Each Version
+## Create New Skill
 
-**This compressed version (daily use):**
-- Regular skill creation/update decisions
-- Quick reference during conversations
-- Pattern detection triggers
-- Routine conflict checks
+**Decision rule**: Create if ANY apply:
+- 3+ occurrences of same pattern
+- 2+ bugs from lacking documentation
+- User says "we should standardize this"
 
-**Full version (deep work):**
-- Updating skill-manager itself (higher stakes)
-- Complex conflict resolution
-- Ecosystem health reviews
-- Major architectural decisions about skills
-- When compressed version doesn't cover edge case
+**Checklist**:
+- [ ] Confirm pattern meets criteria above
+- [ ] Draft skill content (see Structure below)
+- [ ] Propose: "Pattern: [X]. Create skill: [name]? Value: [Y]"
+- [ ] Wait for approval
+- [ ] Create in `.claude/skills/[skill-name]/SKILL.md`
+- [ ] Use kebab-case naming
 
-## Update Existing Skills
+**Don't create for**: One-off requests, already in CLAUDE.md, unique situations
 
-**When**: Pattern refinement, scope clarification, efficiency improvements, error correction, context compression (3+ similar updates suggest need)
+## Update Existing Skill
 
-**How**:
-1. Read current skill
-2. Compress while preserving: core intent, critical constraints, key patterns
-3. Remove: redundant examples, outdated context
-4. Ask: "Update [skill] because [reason]. Changes: [summary]. Proceed?"
-5. Add to evolution history: `- [Date]: [change description]`
+**When**: Pattern refines, efficiency improves, errors need fixing, context can compress
 
-**Self-modification safeguards**:
-- Never remove safeguards from this skill
-- Require explicit reasoning for changes to skill-manager itself
-- Higher approval bar - confirm user understands implications
-- Preserve core principles
+**Checklist**:
+- [ ] Read current skill file
+- [ ] Identify what needs updating and why
+- [ ] Preserve: core intent, critical constraints, key patterns
+- [ ] Remove: redundant examples, outdated context
+- [ ] Propose: "Update [skill] because [reason]. Changes: [summary]. Proceed?"
+- [ ] Wait for approval
+- [ ] Add to evolution history: `- [Date]: [change]`
 
-## Create New Skills
+**Self-modification safeguard**: When updating THIS skill, confirm user understands implications
 
-**When** (one or more):
-- Repetitive patterns (3+ occurrences)
-- Domain-specific knowledge accumulates
-- Cross-cutting concerns emerge
-- Productivity multipliers discovered
+## Deprecate Skill
 
-**Don't create for**: One-offs, preferences in CLAUDE.md, might-not-recur patterns, overly narrow contexts
+**When**: Superseded, unused, obsolete, merged
 
-**Process**:
-1. Detect pattern
-2. Draft skill
-3. Propose: "Pattern: [X]. New skill: [name]. Purpose: [Y]. Benefit: [Z]. Create? Reasoning: [criteria met]"
-4. Create only after approval
-5. Name: kebab-case, descriptive, unique (e.g., `event-sourcing-patterns.md`)
+**Checklist**:
+- [ ] Propose: "Deprecate [skill] because [reason]?"
+- [ ] Wait for approval
+- [ ] Move to `.claude/deprecated/` (don't delete)
+- [ ] Add header: `# [Name] - DEPRECATED | Date | Reason | Replacement`
 
-## Deprecate Skills
+## Skill Structure Template
 
-**When**: Superseded, unused, obsolete, merged with another
+```markdown
+---
+name: skill-name
+description: One-line description of when to use this skill
+---
 
-**Process**:
-1. Propose with reason
-2. Move to `/deprecated/` (don't delete)
-3. Add header: `# [Name] - DEPRECATED | Date: [X] | Reason: [Y] | Replacement: [Z]`
+# Skill Name
 
-## Detect Conflicts
+## Overview
+Brief explanation of what this skill does
 
-**Types**: Direct contradiction, overlap/redundancy, boundary ambiguity
+## When to Use
+Bullet list of triggers
 
-**Process**: Alert immediately → Analyze → Propose resolution (merge/clarify/deprecate) → Implement after approval
+## Process/Checklist
+- [ ] Step 1
+- [ ] Step 2
+- [ ] Step 3
 
-## Proactive Suggestions
+## Common Pitfalls
+❌ Don't: [anti-pattern]
+✅ Do: [correct pattern]
 
-**When**: 3+ repetitions, 2+ inefficiencies from lacking skill, user mentions standardization
+## Related Files
+- file1.ext - what it does
+- file2.ext - what it does
+```
 
-**Format**: "Pattern: [X] in last [N] interactions. Draft skill? [benefit]"
-
-## Success Monitoring
-
-Track: application frequency, user corrections, outcome quality, efficiency gains
-
-## Repository Structure
+## File Structure
 
 ```
 .claude/
   skills/
     skill-manager/
-      SKILL.md           # This compressed version
-      SKILL-FULL.md      # Complete reference
-    ohme-data-updater/
-      SKILL.md           # Existing skills
+      SKILL.md              # This file
+      SKILL-FULL.md         # Reference docs
     [other-skills]/
       SKILL.md
   deprecated/
     [old-skills]/
-      SKILL.md
 ```
 
-**Relationship**: CLAUDE.md = constitution (behavior), Skills = case law (patterns)
+## Conflict Detection
 
-**See Full Version**: [SKILL-FULL.md](./SKILL-FULL.md) for detailed guidance on all aspects of skill management.
+If two skills contradict: Alert user → Propose resolution (merge/clarify/deprecate) → Wait for approval
 
 ## Evolution History
-- 2025-01-04: Initial creation. Self-modifying meta-skill with safeguards for emergence-based skill ecosystem. Created both compressed (SKILL.md) and full (SKILL-FULL.md) versions for context efficiency.
+- 2025-01-04: Initial creation. Self-modifying meta-skill with safeguards.
+- 2025-01-04: Compressed to pure operational format based on usage feedback. Philosophy moved to SKILL-FULL.md.
