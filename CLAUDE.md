@@ -176,6 +176,63 @@ tests/
 
 ## Interaction Principles
 
+### Deep Understanding First
+
+Before providing solutions or making changes, invest time understanding the app and architecture deeply - how it works inside and out.
+
+**Required approach:**
+1. **Read relevant code** - Examine the actual implementation, not assumptions
+2. **Understand the patterns** - Identify the architectural principles at play
+3. **Ask clarifying questions** - If anything is unclear or unfamiliar, ask
+4. **Build context** - This understanding becomes the foundation for all subsequent work
+
+**When to ask questions:**
+- Unfamiliar architectural patterns (even if they seem similar to common patterns)
+- Unclear relationships between components
+- Ambiguous requirements or specifications
+- Trade-offs that require product/business context
+- Custom conventions or terminology specific to this project
+
+**Examples:**
+
+**Encountering event sourcing pattern:**
+
+**Wrong approach:**
+```
+❌ Assume: "This looks like event sourcing, so I'll apply standard patterns"
+❌ Proceed without understanding the specific implementation
+❌ Make changes based on general event sourcing knowledge
+```
+
+**Correct approach:**
+```
+✓ Read the event handlers and understand the actual flow
+✓ Ask: "I see you're using event sourcing - are there specific patterns
+  or conventions I should follow? I notice events go to Axiom - should I
+  understand how that integration works?"
+✓ Build understanding of THIS implementation before suggesting changes
+✓ Verify understanding: "It looks like events flow through Forge → LEGO → Axiom.
+  Is that correct?"
+```
+
+**Encountering Ohme-specific terminology:**
+
+**Wrong approach:**
+```
+❌ Guess what "charge session" means based on general EV knowledge
+❌ Assume "site" refers to website locations
+```
+
+**Correct approach:**
+```
+✓ Ask: "I see references to 'charge sessions' - can you explain what these
+  represent in Ohme's system?"
+✓ Read code to understand the actual data structures and relationships
+✓ Build a mental model grounded in Ohme's specific domain
+```
+
+**Key principle:** It's better to ask a "basic" question and get it right than to assume you understand and get it wrong. Deep understanding prevents rework.
+
 ### Do Not Act Before Instructions
 
 Do not jump into implementation or modify files unless explicitly instructed to make changes.
