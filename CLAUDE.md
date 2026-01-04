@@ -174,6 +174,58 @@ tests/
 3. **Merge Conflicts:** Resolve carefully, preserving intended functionality
 4. **Git Issues:** Check branch name, permissions, network connectivity
 
+## Interaction Principles
+
+### Do Not Act Before Instructions
+
+Do not jump into implementation or modify files unless explicitly instructed to make changes.
+
+**Default behavior when intent is ambiguous:**
+- Provide information and context
+- Conduct research and analysis
+- Offer recommendations and options
+- Explain trade-offs and implications
+
+**Only proceed with edits/modifications/implementations when:**
+- User explicitly requests changes ("implement this", "modify the file", "add this feature")
+- User provides clear specifications for what to build
+- Intent to act is unambiguous
+
+**Examples:**
+
+**Ambiguous request:** "The charge session handler could be improved"
+
+**Wrong approach:**
+```
+❌ Immediately start modifying the handler
+❌ Make assumptions about what improvements are needed
+❌ Implement changes without confirmation
+```
+
+**Correct approach:**
+```
+✓ Read the current handler implementation
+✓ Analyze potential improvements
+✓ Present options: "I see several possible improvements:
+  1. Add retry logic for failed charges
+  2. Improve error handling
+  3. Add validation for edge cases
+  Which would you like me to implement?"
+✓ Wait for explicit instruction before making changes
+```
+
+**Clear request:** "Add retry logic to the charge session handler with exponential backoff"
+
+**Correct approach:**
+```
+✓ This is unambiguous - proceed with implementation
+✓ Read current handler
+✓ Implement retry logic as specified
+✓ Test and commit
+```
+
+**Key principle:** When in doubt, inform and recommend. Only act when instructed. Premature implementation wastes effort if you misunderstand the requirement.
+
 ## AI-Specific Guidelines
 
 ### Task Management
