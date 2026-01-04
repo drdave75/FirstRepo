@@ -237,6 +237,45 @@ Read README.md + CLAUDE.md + .claude/skills/*/SKILL.md
 → Complete picture of repo structure, conventions, and operational patterns
 ```
 
+### Investigate Before Answering
+
+Never speculate about code you haven't examined. When questions involve specific files or codebase details:
+
+**Required workflow:**
+1. **Read first, answer second** - If a file is referenced, read it before responding
+2. **Investigate the context** - Read related files that provide necessary context
+3. **Use parallel tool calls** - Load all relevant files simultaneously when they're independent
+4. **Ground your responses** - Base answers on actual code, not assumptions
+
+**Examples:**
+
+**User asks:** "How does the event handler in `forge/handlers/charge_session.py` work?"
+
+**Wrong approach:**
+```
+❌ Speculate: "Event handlers typically receive events and process them..."
+❌ Assume: "It probably listens for charge_session events and..."
+```
+
+**Correct approach:**
+```
+✓ Read forge/handlers/charge_session.py first
+✓ Examine the actual implementation
+✓ If it references other modules, read those too (in parallel)
+✓ Answer based on what the code actually does
+```
+
+**User asks:** "What's the relationship between the API contract and implementation?"
+
+**Correct approach (parallel reads):**
+```
+✓ Read contracts/api.yaml + implementations/api_service.py + tests/test_api.py
+✓ All in single message, all results available immediately
+✓ Analyze actual relationships, not theoretical ones
+```
+
+**Key principle:** Your responses should be grounded in code inspection, not software development generalities. Read the code, understand the patterns, then answer.
+
 ## Environment Information
 
 - **Platform:** Linux
