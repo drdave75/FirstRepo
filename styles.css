@@ -1,7 +1,8 @@
 /* Ohme Brand Colors */
 :root {
     --primary: #00D9A3;
-    --secondary: #1A1A1A;
+    --secondary: #1E3A5F;
+    --secondary-light: #2D5F8D;
     --accent: #FFFFFF;
     --background: #F5F5F5;
     --text-dark: #1A1A1A;
@@ -35,7 +36,7 @@ body {
 .header {
     text-align: center;
     padding: 40px 20px;
-    background: linear-gradient(135deg, var(--secondary) 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
     border-radius: 12px;
     margin-bottom: 30px;
     box-shadow: 0 4px 6px var(--shadow);
@@ -46,6 +47,16 @@ body {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.ohme-logo {
+    width: 50px;
+    height: 50px;
+    color: var(--primary);
 }
 
 .subtitle {
@@ -112,7 +123,7 @@ body {
 }
 
 .btn-accent:hover {
-    background-color: #2d2d2d;
+    background-color: var(--secondary-light);
 }
 
 /* Main Content */
