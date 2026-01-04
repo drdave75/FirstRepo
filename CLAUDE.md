@@ -197,6 +197,46 @@ tests/
 - Use Task tool with Explore agent for codebase exploration
 - Make parallel tool calls when operations are independent
 
+### Tool Usage Optimization
+
+#### Parallel Tool Calls
+
+When working with code, maximize efficiency by calling independent tools in parallel rather than sequentially:
+
+**Always parallelize when:**
+- Reading multiple files to understand system architecture
+- Analyzing related components across microservices (Forge/LEGO/Axiom patterns)
+- Loading event sourcing handlers and their corresponding events
+- Reviewing API contracts alongside implementations
+- Gathering context from multiple skills in self-aware repositories
+
+**Never parallelize when:**
+- Tool calls have dependencies (e.g., need output from first call as input to second)
+- Parameters for subsequent calls depend on previous results
+- Sequential execution is required by the logic
+
+**Example - Analyzing a microservice interface:**
+```
+Bad (Sequential):
+1. Read API contract
+2. Wait for result
+3. Read implementation
+4. Wait for result
+5. Read tests
+
+Good (Parallel):
+1. Read API contract + implementation + tests in single message
+2. All results available immediately
+3. Begin analysis
+```
+
+**Example - Understanding self-aware repository:**
+```
+Good (Parallel):
+Read README.md + CLAUDE.md + .claude/skills/*/SKILL.md
+→ Complete picture of repo structure, conventions, and operational patterns
+```
+
 ## Environment Information
 
 - **Platform:** Linux
