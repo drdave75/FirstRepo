@@ -79,8 +79,9 @@ class OhmeDashboard {
     populateCountrySelector() {
         const selector = document.getElementById('countrySelector');
 
-        // Clear existing options except Global
+        // Clear existing options and add Global and EU options
         selector.innerHTML = '<option value="Global">Global</option>';
+        selector.innerHTML += '<option value="EU Total (excl. UK)">EU Total (excl. UK)</option>';
 
         // Add country options
         this.data.forEach(row => {
@@ -226,6 +227,18 @@ class OhmeDashboard {
             };
             yearlyTotals = years.map(year => globalTotals[year] || 0);
             chartLabel = 'Total Historical Sites';
+        } else if (this.selectedCountry === 'EU Total (excl. UK)') {
+            // Calculate EU totals (all countries except UK)
+            yearlyTotals = years.map(year => {
+                let euSum = 0;
+                this.data.forEach(row => {
+                    if (row.Country !== 'UK') {
+                        euSum += parseInt(row[year]) || 0;
+                    }
+                });
+                return euSum;
+            });
+            chartLabel = 'EU Total (excl. UK) Historical Sites';
         } else {
             // Use country-specific data
             const countryData = this.data.find(row => row.Country === this.selectedCountry);
@@ -345,6 +358,17 @@ class OhmeDashboard {
             currentTotal = globalTotals[currentYear];
             previousTotal = globalTotals[previousYear];
             dataLabel = 'Global';
+        } else if (this.selectedCountry === 'EU Total (excl. UK)') {
+            // Calculate EU totals (all countries except UK)
+            currentTotal = 0;
+            previousTotal = 0;
+            this.data.forEach(row => {
+                if (row.Country !== 'UK') {
+                    currentTotal += parseInt(row[currentYear]) || 0;
+                    previousTotal += parseInt(row[previousYear]) || 0;
+                }
+            });
+            dataLabel = 'EU Total (excl. UK)';
         } else {
             // Use country-specific data
             const countryData = this.data.find(row => row.Country === this.selectedCountry);
