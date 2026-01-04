@@ -210,8 +210,10 @@ class OhmeDashboard {
             this.chart.destroy();
         }
 
-        // Prepare data for chart
-        const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
+        // Prepare data for chart - sort years descending
+        const years = Object.keys(this.data[0])
+            .filter(key => key !== 'Country')
+            .sort((a, b) => b - a); // 2025, 2024, 2023...
 
         let yearlyTotals;
         let chartLabel;
@@ -325,9 +327,12 @@ class OhmeDashboard {
 
         if (this.data.length === 0) return;
 
-        const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
-        const currentYear = years[0];
-        const previousYear = years[1];
+        // Sort years descending to ensure most recent year is first
+        const years = Object.keys(this.data[0])
+            .filter(key => key !== 'Country')
+            .sort((a, b) => b - a); // 2025, 2024, 2023...
+        const currentYear = years[0]; // Most recent year (2025)
+        const previousYear = years[1]; // Previous year (2024)
 
         let currentTotal, previousTotal, dataLabel;
 
