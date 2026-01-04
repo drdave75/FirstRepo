@@ -1,6 +1,10 @@
 ---
 name: skill-manager
 description: Meta-skill for managing skill lifecycle in self-aware repository. Handles skill creation, updates, deprecation, and conflict detection. Self-modifying with safeguards.
+last_verified: 2025-01-04
+verified_against: current
+owner: repository-owner
+confidence: high
 ---
 
 # Skill Manager
@@ -12,9 +16,11 @@ Manages skill lifecycle. Self-modifying with safeguards.
 ## Create New Skill
 
 **Decision rule**: Create if ANY apply:
-- 3+ occurrences of same pattern
-- 2+ bugs from lacking documentation
-- User says "we should standardize this"
+- **Prevented measurable harm**: Bug, rollback, production incident, or compliance issue
+- **3+ occurrences of confusion**: Same question/mistake repeated
+- **High-cost operation**: Task is expensive/risky and standardization reduces risk
+
+**Kill rule**: If skill hasn't prevented harm OR resolved repeated confusion, deprecate it. Skills must earn their existence.
 
 **Checklist**:
 - [ ] Confirm pattern meets criteria above
@@ -39,7 +45,20 @@ Manages skill lifecycle. Self-modifying with safeguards.
 - [ ] Wait for approval
 - [ ] Add to evolution history: `- [Date]: [change]`
 
-**Self-modification safeguard**: When updating THIS skill, confirm user understands implications
+**CRITICAL - AI Auto-Update Rules**:
+- ❌ **NEVER auto-update skills without human approval**
+- Skills encode institutional truth - auto-modification creates drift
+- Always propose changes, show diff, wait for explicit approval
+- This applies even to obvious improvements or corrections
+- Exception: Metadata updates (last_verified, confidence) can be flagged but require approval
+
+**Why**: Confidently outdated instructions are worse than no instructions. Trust collapses if skills drift from reality.
+
+**Self-modification safeguard**:
+- When updating THIS skill (skill-manager), require explicit reasoning for changes
+- Confirm user understands implications of meta-skill modification
+- Never remove authority hierarchy, staleness rules, or kill criteria
+- Higher approval bar than other skills - this is infrastructure
 
 ## Deprecate Skill
 
@@ -57,12 +76,27 @@ Manages skill lifecycle. Self-modifying with safeguards.
 ---
 name: skill-name
 description: One-line description of when to use this skill
+last_verified: YYYY-MM-DD
+verified_against: commit-hash-or-"current"
+owner: name
+confidence: high
 ---
 
 # Skill Name
 
 ## Overview
 Brief explanation of what this skill does
+
+## Model Notes
+**Known risks**:
+- [List AI failure modes specific to this skill]
+- [e.g., "Overgeneralizing to other similar files"]
+- [e.g., "Missing secondary update locations"]
+
+**Required behavior**:
+- [Critical safeguards AI must follow]
+- [e.g., "Complete entire checklist before any edit"]
+- [e.g., "Verify all N locations updated, not just one"]
 
 ## When to Use
 Bullet list of triggers
@@ -80,6 +114,43 @@ Bullet list of triggers
 - file1.ext - what it does
 - file2.ext - what it does
 ```
+
+## Authority & Trust
+
+**Authority hierarchy** (when conflicts arise):
+1. **Code** - Source of truth, always wins
+2. **Skills** - Operational memory, must stay synchronized with code
+3. **CLAUDE.md** - Behavioral rules and conventions
+4. **Model knowledge** - Fallback only, lowest priority
+
+**Skill metadata** (required in every skill header):
+```yaml
+---
+name: skill-name
+description: One-line description
+last_verified: YYYY-MM-DD
+verified_against: commit-hash-or-"current"
+owner: name
+confidence: high|medium|legacy
+---
+```
+
+**Confidence levels**:
+- `high`: Recently verified, actively maintained
+- `medium`: Somewhat outdated but still generally applicable
+- `legacy`: Not verified recently, use with caution
+
+**Staleness rules**:
+- When referenced files change significantly, skill should be reviewed
+- Skills not verified in [6 months] automatically downgrade to `legacy`
+- Legacy skills display warning when referenced
+- AI should flag when it detects skill-code mismatch
+
+**Who declares truth** (governance):
+- **System skills** (skill-manager, CLAUDE.md): Repository owner only
+- **Domain skills**: Domain lead approval required
+- **Team skills**: Team lead approval required
+- **Personal skills**: Individual creates, but flagged as personal scope
 
 ## File Structure
 
@@ -99,6 +170,23 @@ Bullet list of triggers
 
 If two skills contradict: Alert user → Propose resolution (merge/clarify/deprecate) → Wait for approval
 
+## Staleness Detection
+
+**Manual process** (until automation exists):
+- When code files referenced in skill change significantly, review skill
+- Update `last_verified` date and `verified_against` after review
+- If skill is incorrect, update it immediately
+- If skill hasn't been verified in 6 months, downgrade confidence to `legacy`
+
+**Future automation** (not yet implemented):
+- CI checks that flag when referenced files change
+- Automatic confidence downgrade based on time
+- Warning displayed when legacy skills are referenced
+
+**When you detect stale skill**:
+Alert: "Skill [name] references [file] which has changed since last verification. Skill may be outdated. Review needed?"
+
 ## Evolution History
 - 2025-01-04: Initial creation. Self-modifying meta-skill with safeguards.
 - 2025-01-04: Compressed to pure operational format based on usage feedback. Philosophy moved to SKILL-FULL.md.
+- 2025-01-04: Added authority hierarchy, staleness detection, kill rule, and auto-update prohibition based on critical feedback about scaling failure modes.
