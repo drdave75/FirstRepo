@@ -6,12 +6,14 @@ class OhmeDashboard {
         this.data = [];
         this.chart = null;
         this.hasUnsavedChanges = false;
+        this.selectedCountry = 'Global';
         this.init();
     }
 
     async init() {
         this.setupEventListeners();
         await this.loadDefaultData();
+        this.populateCountrySelector();
         this.renderTable();
         this.renderChart();
         this.updateStats();
@@ -31,6 +33,13 @@ class OhmeDashboard {
         // Save button
         document.getElementById('saveBtn').addEventListener('click', () => {
             this.saveChanges();
+        });
+
+        // Country selector
+        document.getElementById('countrySelector').addEventListener('change', (e) => {
+            this.selectedCountry = e.target.value;
+            this.renderChart();
+            this.updateStats();
         });
 
         // Warn before leaving if there are unsaved changes
@@ -67,6 +76,21 @@ class OhmeDashboard {
         ];
     }
 
+    populateCountrySelector() {
+        const selector = document.getElementById('countrySelector');
+
+        // Clear existing options except Global
+        selector.innerHTML = '<option value="Global">Global</option>';
+
+        // Add country options
+        this.data.forEach(row => {
+            const option = document.createElement('option');
+            option.value = row.Country;
+            option.textContent = row.Country;
+            selector.appendChild(option);
+        });
+    }
+
     parseCSV(csvText) {
         const lines = csvText.trim().split('\n');
         const headers = lines[0].split(',').map(h => h.trim());
@@ -100,17 +124,47 @@ class OhmeDashboard {
             return bVal - aVal; // Descending order
         });
 
+        // Calculate totals
+        const globalTotal = { Country: 'Global Total' };
+        const euTotal = { Country: 'EU Total (excl. UK)' };
+
+        yearHeaders.forEach(year => {
+            let globalSum = 0;
+            let euSum = 0;
+
+            sortedData.forEach(row => {
+                const value = parseInt(row[year]) || 0;
+                globalSum += value;
+                if (row.Country !== 'UK') {
+                    euSum += value;
+                }
+            });
+
+            globalTotal[year] = globalSum.toString();
+            euTotal[year] = euSum.toString();
+        });
+
         // Render headers
         thead.innerHTML = headers.map(header => `<th>${header}</th>`).join('');
 
-        // Render body with formatted numbers
-        tbody.innerHTML = sortedData.map((row, rowIndex) => {
+        // Render total rows (non-editable) + data rows
+        const totalRows = [globalTotal, euTotal].map(row => {
+            return `<tr class="total-row">${headers.map((header) => {
+                const value = header === 'Country' ? row[header] : this.formatNumber(row[header]);
+                return `<td><strong>${value}</strong></td>`;
+            }).join('')}</tr>`;
+        }).join('');
+
+        // Render data rows (editable)
+        const dataRows = sortedData.map((row, rowIndex) => {
             return `<tr>${headers.map((header, colIndex) => {
                 const isEditable = colIndex > 0 ? 'contenteditable="true"' : '';
                 const value = header === 'Country' ? row[header] : this.formatNumber(row[header]);
                 return `<td ${isEditable} data-row="${rowIndex}" data-col="${header}">${value}</td>`;
             }).join('')}</tr>`;
         }).join('');
+
+        tbody.innerHTML = totalRows + dataRows;
 
         // Add event listeners for editable cells
         tbody.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
@@ -158,15 +212,29 @@ class OhmeDashboard {
 
         // Prepare data for chart
         const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
-        const countries = this.data.map(row => row.Country);
 
-        // Use actual global totals (includes all countries worldwide, not just those shown in table)
-        const globalTotals = {
-            '2024': 149000,
-            '2025': 175420
-        };
+        let yearlyTotals;
+        let chartLabel;
 
-        const yearlyTotals = years.map(year => globalTotals[year] || 0);
+        if (this.selectedCountry === 'Global') {
+            // Use actual global totals (includes all countries worldwide, not just those shown in table)
+            const globalTotals = {
+                '2024': 149000,
+                '2025': 175420
+            };
+            yearlyTotals = years.map(year => globalTotals[year] || 0);
+            chartLabel = 'Total Historical Sites';
+        } else {
+            // Use country-specific data
+            const countryData = this.data.find(row => row.Country === this.selectedCountry);
+            if (countryData) {
+                yearlyTotals = years.map(year => parseInt(countryData[year]) || 0);
+                chartLabel = `${this.selectedCountry} Historical Sites`;
+            } else {
+                yearlyTotals = years.map(() => 0);
+                chartLabel = 'No Data';
+            }
+        }
 
         // Create gradient
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
@@ -178,7 +246,7 @@ class OhmeDashboard {
             data: {
                 labels: years,
                 datasets: [{
-                    label: 'Total Historical Sites',
+                    label: chartLabel,
                     data: yearlyTotals,
                     backgroundColor: gradient,
                     borderColor: '#00D9A3',
@@ -308,6 +376,7 @@ class OhmeDashboard {
         reader.onload = (event) => {
             try {
                 this.parseCSV(event.target.result);
+                this.populateCountrySelector();
                 this.renderTable();
                 this.renderChart();
                 this.updateStats();
