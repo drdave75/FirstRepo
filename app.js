@@ -6,12 +6,14 @@ class OhmeDashboard {
         this.data = [];
         this.chart = null;
         this.hasUnsavedChanges = false;
+        this.selectedCountry = 'Global';
         this.init();
     }
 
     async init() {
         this.setupEventListeners();
         await this.loadDefaultData();
+        this.populateCountrySelector();
         this.renderTable();
         this.renderChart();
         this.updateStats();
@@ -31,6 +33,13 @@ class OhmeDashboard {
         // Save button
         document.getElementById('saveBtn').addEventListener('click', () => {
             this.saveChanges();
+        });
+
+        // Country selector
+        document.getElementById('countrySelector').addEventListener('change', (e) => {
+            this.selectedCountry = e.target.value;
+            this.renderChart();
+            this.updateStats();
         });
 
         // Warn before leaving if there are unsaved changes
@@ -67,6 +76,22 @@ class OhmeDashboard {
         ];
     }
 
+    populateCountrySelector() {
+        const selector = document.getElementById('countrySelector');
+
+        // Clear existing options and add Global and EU options
+        selector.innerHTML = '<option value="Global">Global</option>';
+        selector.innerHTML += '<option value="EU Total (excl. UK)">EU Total (excl. UK)</option>';
+
+        // Add country options
+        this.data.forEach(row => {
+            const option = document.createElement('option');
+            option.value = row.Country;
+            option.textContent = row.Country;
+            selector.appendChild(option);
+        });
+    }
+
     parseCSV(csvText) {
         const lines = csvText.trim().split('\n');
         const headers = lines[0].split(',').map(h => h.trim());
@@ -88,17 +113,59 @@ class OhmeDashboard {
 
         if (this.data.length === 0) return;
 
+        // Separate Country column and year columns
+        const allHeaders = Object.keys(this.data[0]);
+        const yearHeaders = allHeaders.filter(h => h !== 'Country').sort((a, b) => b - a); // Sort years descending
+        const headers = ['Country', ...yearHeaders]; // Country first, then years
+
+        // Sort data by most recent year (first year in yearHeaders) - largest to smallest
+        const sortedData = [...this.data].sort((a, b) => {
+            const aVal = parseInt(a[yearHeaders[0]]) || 0;
+            const bVal = parseInt(b[yearHeaders[0]]) || 0;
+            return bVal - aVal; // Descending order
+        });
+
+        // Calculate totals
+        const globalTotal = { Country: 'Global Total' };
+        const euTotal = { Country: 'EU Total (excl. UK)' };
+
+        yearHeaders.forEach(year => {
+            let globalSum = 0;
+            let euSum = 0;
+
+            sortedData.forEach(row => {
+                const value = parseInt(row[year]) || 0;
+                globalSum += value;
+                if (row.Country !== 'UK') {
+                    euSum += value;
+                }
+            });
+
+            globalTotal[year] = globalSum.toString();
+            euTotal[year] = euSum.toString();
+        });
+
         // Render headers
-        const headers = Object.keys(this.data[0]);
         thead.innerHTML = headers.map(header => `<th>${header}</th>`).join('');
 
-        // Render body
-        tbody.innerHTML = this.data.map((row, rowIndex) => {
-            return `<tr>${headers.map((header, colIndex) => {
-                const isEditable = colIndex > 0 ? 'contenteditable="true"' : '';
-                return `<td ${isEditable} data-row="${rowIndex}" data-col="${header}">${row[header]}</td>`;
+        // Render total rows (non-editable) + data rows
+        const totalRows = [globalTotal, euTotal].map(row => {
+            return `<tr class="total-row">${headers.map((header) => {
+                const value = header === 'Country' ? row[header] : this.formatNumber(row[header]);
+                return `<td><strong>${value}</strong></td>`;
             }).join('')}</tr>`;
         }).join('');
+
+        // Render data rows (editable)
+        const dataRows = sortedData.map((row, rowIndex) => {
+            return `<tr>${headers.map((header, colIndex) => {
+                const isEditable = colIndex > 0 ? 'contenteditable="true"' : '';
+                const value = header === 'Country' ? row[header] : this.formatNumber(row[header]);
+                return `<td ${isEditable} data-row="${rowIndex}" data-col="${header}">${value}</td>`;
+            }).join('')}</tr>`;
+        }).join('');
+
+        tbody.innerHTML = totalRows + dataRows;
 
         // Add event listeners for editable cells
         tbody.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
@@ -106,17 +173,30 @@ class OhmeDashboard {
                 this.handleCellEdit(e);
             });
         });
+
+        // Update the actual data array to match sorted order
+        this.data = sortedData;
+    }
+
+    formatNumber(value) {
+        // Remove any existing formatting and parse as integer
+        const num = parseInt(String(value).replace(/,/g, ''));
+        if (isNaN(num)) return value;
+        return num.toLocaleString(); // Format with commas
     }
 
     handleCellEdit(e) {
         const cell = e.target;
         const rowIndex = parseInt(cell.dataset.row);
         const colName = cell.dataset.col;
-        const newValue = cell.textContent.trim();
+        const newValue = cell.textContent.trim().replace(/,/g, ''); // Remove commas before storing
 
         // Update data
         this.data[rowIndex][colName] = newValue;
         this.hasUnsavedChanges = true;
+
+        // Re-render table to maintain formatting and sorting
+        this.renderTable();
 
         // Update chart
         this.renderChart();
@@ -131,17 +211,49 @@ class OhmeDashboard {
             this.chart.destroy();
         }
 
-        // Prepare data for chart
-        const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
-        const countries = this.data.map(row => row.Country);
+        // Prepare data for chart - sort years descending for calculations
+        const years = Object.keys(this.data[0])
+            .filter(key => key !== 'Country')
+            .sort((a, b) => b - a); // 2025, 2024, 2023...
 
-        // Use actual global totals (includes all countries worldwide, not just those shown in table)
-        const globalTotals = {
-            '2024': 149000,
-            '2025': 175420
-        };
+        let yearlyTotals;
+        let chartLabel;
 
-        const yearlyTotals = years.map(year => globalTotals[year] || 0);
+        if (this.selectedCountry === 'Global') {
+            // Use actual global totals (includes all countries worldwide, not just those shown in table)
+            const globalTotals = {
+                '2024': 149000,
+                '2025': 175420
+            };
+            yearlyTotals = years.map(year => globalTotals[year] || 0);
+            chartLabel = 'Total Historical Sites';
+        } else if (this.selectedCountry === 'EU Total (excl. UK)') {
+            // Calculate EU totals (all countries except UK)
+            yearlyTotals = years.map(year => {
+                let euSum = 0;
+                this.data.forEach(row => {
+                    if (row.Country !== 'UK') {
+                        euSum += parseInt(row[year]) || 0;
+                    }
+                });
+                return euSum;
+            });
+            chartLabel = 'EU Total (excl. UK) Historical Sites';
+        } else {
+            // Use country-specific data
+            const countryData = this.data.find(row => row.Country === this.selectedCountry);
+            if (countryData) {
+                yearlyTotals = years.map(year => parseInt(countryData[year]) || 0);
+                chartLabel = `${this.selectedCountry} Historical Sites`;
+            } else {
+                yearlyTotals = years.map(() => 0);
+                chartLabel = 'No Data';
+            }
+        }
+
+        // Reverse arrays for chart display (oldest to newest, left to right)
+        const chartYears = [...years].reverse();
+        const chartData = [...yearlyTotals].reverse();
 
         // Create gradient
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
@@ -151,10 +263,10 @@ class OhmeDashboard {
         this.chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: years,
+                labels: chartYears,
                 datasets: [{
-                    label: 'Total Historical Sites',
-                    data: yearlyTotals,
+                    label: chartLabel,
+                    data: chartData,
                     backgroundColor: gradient,
                     borderColor: '#00D9A3',
                     borderWidth: 3,
@@ -232,28 +344,51 @@ class OhmeDashboard {
 
         if (this.data.length === 0) return;
 
-        const years = Object.keys(this.data[0]).filter(key => key !== 'Country');
+        // Sort years descending to ensure most recent year is first
+        const years = Object.keys(this.data[0])
+            .filter(key => key !== 'Country')
+            .sort((a, b) => b - a); // 2025, 2024, 2023...
+        const currentYear = years[0]; // Most recent year (2025)
+        const previousYear = years[1]; // Previous year (2024)
 
-        // Use actual global totals (includes all countries worldwide, not just those shown in table)
-        const globalTotals = {
-            '2024': 149000,
-            '2025': 175420
-        };
+        let currentTotal, previousTotal, dataLabel;
 
-        const currentYear = years[0];
-        const previousYear = years[1];
+        if (this.selectedCountry === 'Global') {
+            // Use actual global totals (includes all countries worldwide, not just those shown in table)
+            const globalTotals = {
+                '2024': 149000,
+                '2025': 175420
+            };
+            currentTotal = globalTotals[currentYear];
+            previousTotal = globalTotals[previousYear];
+            dataLabel = 'Global';
+        } else if (this.selectedCountry === 'EU Total (excl. UK)') {
+            // Calculate EU totals (all countries except UK)
+            currentTotal = 0;
+            previousTotal = 0;
+            this.data.forEach(row => {
+                if (row.Country !== 'UK') {
+                    currentTotal += parseInt(row[currentYear]) || 0;
+                    previousTotal += parseInt(row[previousYear]) || 0;
+                }
+            });
+            dataLabel = 'EU Total (excl. UK)';
+        } else {
+            // Use country-specific data
+            const countryData = this.data.find(row => row.Country === this.selectedCountry);
+            if (countryData) {
+                currentTotal = parseInt(countryData[currentYear]) || 0;
+                previousTotal = parseInt(countryData[previousYear]) || 0;
+                dataLabel = this.selectedCountry;
+            } else {
+                currentTotal = 0;
+                previousTotal = 0;
+                dataLabel = 'No Data';
+            }
+        }
 
-        const currentTotal = globalTotals[currentYear];
-        const previousTotal = globalTotals[previousYear];
         const growth = currentTotal - previousTotal;
-        const growthPercent = ((growth / previousTotal) * 100).toFixed(1);
-
-        // Top country
-        const topCountry = this.data.reduce((max, row) => {
-            const current = parseInt(row[currentYear]) || 0;
-            const maxValue = parseInt(max[currentYear]) || 0;
-            return current > maxValue ? row : max;
-        });
+        const growthPercent = previousTotal > 0 ? ((growth / previousTotal) * 100).toFixed(1) : '0.0';
 
         statsSummary.innerHTML = `
             <div class="stat-card">
@@ -261,16 +396,12 @@ class OhmeDashboard {
                 <p>${currentTotal.toLocaleString()}</p>
             </div>
             <div class="stat-card">
-                <h3>YoY Growth</h3>
+                <h3>Absolute Change</h3>
                 <p>${growth > 0 ? '+' : ''}${growth.toLocaleString()}</p>
             </div>
             <div class="stat-card">
-                <h3>Growth Rate</h3>
+                <h3>% Change</h3>
                 <p>${growthPercent > 0 ? '+' : ''}${growthPercent}%</p>
-            </div>
-            <div class="stat-card">
-                <h3>Top Region</h3>
-                <p style="font-size: 1.2rem;">${topCountry.Country}</p>
             </div>
         `;
     }
@@ -283,6 +414,7 @@ class OhmeDashboard {
         reader.onload = (event) => {
             try {
                 this.parseCSV(event.target.result);
+                this.populateCountrySelector();
                 this.renderTable();
                 this.renderChart();
                 this.updateStats();

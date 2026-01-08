@@ -9,6 +9,26 @@ description: Updates the Ohme Historical Sites Dashboard with new country data, 
 
 This skill ensures that updates to the Ohme Historical Sites Dashboard are done correctly and completely, maintaining data consistency across all files.
 
+## Dashboard Features
+
+### Table Display
+- **Column Order:** Country column appears first (leftmost), followed by year columns in descending order (2025, 2024, 2023, etc.)
+- **Number Formatting:** All numeric values display with thousand separators (e.g., 162,000)
+- **Sorting:** Rows are automatically sorted by the most recent year (descending - largest to smallest)
+- **Total Rows:**
+  - **Global Total:** Top row showing sum of all countries for each year
+  - **EU Total (excl. UK):** Second row showing sum of all EU countries excluding UK
+
+### Chart Display
+- **Country Selector:** Dropdown in top right corner allows viewing trends for:
+  - Global totals (default)
+  - Individual country trends
+- **Dynamic Data:** Chart and statistics update based on selected country
+- **Statistics Cards:** Three dynamic cards below chart showing:
+  - **2025 Total** (or most recent year): Current year's value for selected country/global
+  - **Absolute Change**: Year-over-year numeric change (with +/- indicator)
+  - **% Change**: Year-over-year percentage change (with +/- indicator)
+
 ## When to Use
 
 Invoke this skill when:
@@ -64,6 +84,8 @@ const globalTotals = {
 
 **To calculate totals:** Sum all country values for each year from the CSV.
 
+**Note on EU Total:** The EU total (excluding UK) is calculated automatically by the table rendering logic and doesn't need manual updates.
+
 ### 3. Update Sample Data Fallback
 
 **File:** `app.js` - useSampleData() method (around line 57)
@@ -109,6 +131,13 @@ After making updates:
 - [ ] globalTotals updated in both locations
 - [ ] Totals match sum of country data
 - [ ] Sample data matches CSV
+- [ ] Verify Global Total row displays correctly in table
+- [ ] Verify EU Total (excl. UK) row displays correctly in table
+- [ ] Test country selector dropdown switches chart data correctly
+- [ ] Verify statistics cards update when country changes
+- [ ] Check statistics show correct values: Total, Absolute Change, % Change
+- [ ] Verify table sorting works (by most recent year, descending)
+- [ ] Verify number formatting with commas (e.g., 162,000)
 - [ ] README updated if needed
 - [ ] Commit with clear message using conventional commits format
 

@@ -73,8 +73,18 @@
             <!-- Right Section: Yearly Trends Chart -->
             <section class="section right-section">
                 <div class="section-header">
-                    <h2>Historical Trends</h2>
-                    <p class="section-description">Year-over-year growth analysis</p>
+                    <div class="header-content">
+                        <div>
+                            <h2>Historical Trends</h2>
+                            <p class="section-description">Year-over-year growth analysis</p>
+                        </div>
+                        <div class="country-selector-wrapper">
+                            <label for="countrySelector">View:</label>
+                            <select id="countrySelector" class="country-selector">
+                                <option value="Global">Global</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="chart-container">
                     <canvas id="trendsChart"></canvas>
